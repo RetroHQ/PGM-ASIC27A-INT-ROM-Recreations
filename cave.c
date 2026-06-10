@@ -4,7 +4,7 @@
 // Command handler for cave games
 
 u32 gCurSlot;
-u16 gSlot[0x100];
+u32 gSlot[0x40];
 
 void CommandHandler(u32 latch)
 {
@@ -21,17 +21,17 @@ void CommandHandler(u32 latch)
 
 		case 0x67: // set high bits
 			WriteLatch(0x880000);
-			gCurSlot = (latch & 0xff00) >> 8;
+			gCurSlot = ((latch & 0xff00) >> 8) & 0x3f;
 			gSlot[gCurSlot] = (latch & 0x00ff) << 16;
 			break;
 
-		case 0xe5: // set low bits for operation?
+		case 0xe5: // OR in bits 15:0
 			WriteLatch(0x880000);
 			gSlot[gCurSlot] |= (latch & 0xffff);
 			break;
 
 		case 0x8e: // read back result of operations
-			WriteLatch(gSlot[latch & 0xff]);
+			WriteLatch(gSlot[latch & 0x3f]);
 			break;
 
 		case 0x99: // reset?
