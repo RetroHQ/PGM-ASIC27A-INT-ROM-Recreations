@@ -6,13 +6,9 @@ void CommandHandler(u32 latch);
 // Hardware memory mapping
 
 static volatile u32 * const LATCH = (volatile u32 * const) 0x40000000;
-static volatile u16 * const SHARERAM = (volatile u16 * const) 0x50800000;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Globals
-
-//u32 gLatchSave;
-//u16 gLastCommand;
 
 u16 gValueKey;
 
@@ -41,9 +37,6 @@ void WriteLatch(u32 v)
 
 void main()
 {
-	// init
-	SHARERAM[4] = gRegion;
-	
 	// main command handler polling loop
 	while (1)
 	{
@@ -63,9 +56,6 @@ void main()
 			gValueKey += 0x0100;
 			gValueKey &= 0xff00;
 			if (gValueKey == 0xff00) gValueKey = 0x0100;
-
-//			gLatchSave = latch;
-//			gLastCommand = latch & 0xff;
 
 			// now do command handler
 			CommandHandler(latch);

@@ -36,7 +36,7 @@ void CommandHandler(u32 latch)
 
 		case 0x99: // reset?
 			gValueKey = 0x100;
-			WriteLatch(0x00880000 | (gRegion << 8));
+			WriteLatch(0x00880000 | (REGIONSHARE << 8));
 			break;
 	}	
 }

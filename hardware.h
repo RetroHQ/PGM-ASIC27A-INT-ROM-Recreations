@@ -20,6 +20,7 @@ extern u32 ReadLatch();
 extern void WriteLatch(u32 v);
 
 extern u16 gValueKey;
-extern volatile u8 gRegion;
+
+#define REGIONSHARE *((u16*)0x50800010)
 
 #endif

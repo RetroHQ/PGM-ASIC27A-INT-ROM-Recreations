@@ -387,7 +387,7 @@ void CommandHandler(u32 latch)
 
 
 		case 0x38: // Reset
-			WriteLatch(0x780000 | (gRegion << 8)); // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
+			WriteLatch(0x780000 | (REGIONSHARE << 8)); // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
 			gValueKey = 0x100;
 			m_puzzli_54_trigger = 0;
 

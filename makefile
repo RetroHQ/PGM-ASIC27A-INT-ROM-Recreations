@@ -12,9 +12,7 @@ LINKSCRIPT = type1.ld
 
 CFLAGS = -march=armv4t -mcpu=arm7tdmi -ffunction-sections -fdata-sections -Wreturn-type -Wno-multichar -O3 -fno-tree-loop-distribute-patterns
 SFLAGS = -march=armv4t -mcpu=arm7tdmi
-LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIPT),--gc-sections
-
-# xxd -i out/type1.bin > type1_py2k2.c
+LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIPT),--gc-sections,-Map=$@.map
 
 ################################################################################
 
@@ -31,7 +29,7 @@ $(OUTDIR)/type1_puzzli2.elf: $(PZLI2OBJ) $(LINKSCRIPT) | $(OUTDIR)
 
 ################################################################################
 
-PY2K2SRC = startup.s main.c cave.c
+PY2K2SRC = startup.s main.c py2k2.c
 PY2K2OBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(PY2K2SRC))))
 PY2K2DEP = $(PY2K2OBJ:%.o=%.d)
 
@@ -49,6 +47,7 @@ $(OUTDIR)/type1_cave.elf: $(CAVEOBJ) $(LINKSCRIPT) | $(OUTDIR)
 
 ################################################################################
 
+-include $(PZLI2DEP)
 -include $(PY2K2DEP)
 -include $(CAVEDEP)
 

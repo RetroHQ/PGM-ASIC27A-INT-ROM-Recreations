@@ -1,6 +1,5 @@
 				.text
 				.global	start
-				.global gRegion
 				.extern	main
 				.arm
 				.section .startup, "ax"
@@ -36,9 +35,6 @@ vec_null:		b		vec_null
 
 ////////////////////////////////////////////////////////////////////////////////
 
-				.bss
-gRegion:		.space	4
-
 				.text
 start:			MSR		CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 				ldr		SP, =STACK_IRQ
@@ -51,11 +47,11 @@ start:			MSR		CPSR_c, #ARM_MODE_IRQ | I_BIT | F_BIT
 
 				MSR		CPSR_c, #ARM_MODE_SVC
 
-				// set the region to be used, this will be overridden by the
-				// PGMBuilder as required
-				ldr		r0, =gRegion
+				// write the region id to shared 64B memory
+				// read from 4f0008 in 68K memory space
+				ldr		r0,=0x50800010
 				mov		r1, #0xdd
-				strb	r1, [r0]
+				strh	r1, [r0]
 
 				// init data
 				LDR		r1, =__data_init

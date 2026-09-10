@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 // Command handler for Py2k
 
-u16 gSlot[0x100];
 u16 m_py2k2_sprite_pos;
 u16 m_py2k2_sprite_base;
 u16 m_py2k2_prev_base;
@@ -58,7 +57,7 @@ static u16 mux10(u16 v) {
 u32 py2k2_sprite_offset(u16 base, u16 pos)
 {
 	u16 ret = 0;
-	u16 offset = (base * 16) + (pos & 0xf);
+	u16 offset = (base << 4) | (pos & 0xf);
 
 	switch (base & ~0x3f)
 	{
@@ -98,50 +97,48 @@ u32 py2k2_sprite_offset(u16 base, u16 pos)
 
 void CommandHandler(u32 latch)
 {
+	u16 latchLow = (u16) latch;
 	switch ((latch >> 16) & 0xff)
 	{
 		case 0x30:
 			WriteLatch(py2k2_sprite_offset(m_py2k2_sprite_base, m_py2k2_sprite_pos++));
-		break;
+			break;
 		case 0x32:
-			m_py2k2_sprite_base = latch;
+			m_py2k2_sprite_base = latchLow;
 			m_py2k2_sprite_pos = 0;
 			WriteLatch(py2k2_sprite_offset(m_py2k2_sprite_base, m_py2k2_sprite_pos++));
-		break;
+			break;
 		case 0xba:
 			WriteLatch(m_py2k2_prev_base);
-			m_py2k2_prev_base = latch;
-		break;
+			m_py2k2_prev_base = latchLow;
+			break;
 		case 0x99: // reset?
-			m_py2k2_prev_base = latch;
+			m_py2k2_prev_base = latchLow;
 			gValueKey = 0x100;
-			WriteLatch(0x00880000 | (gRegion << 8));
-		break;
+			WriteLatch(0x00880000 | (REGIONSHARE << 8));
+			break;
 		case 0xc0:
 			WriteLatch(0x880000);
 			break;
 		case 0xc3:
-			WriteLatch(0x904000 + ((gSlot[0xc0] + ((latch & 0xffff) * 0x40)) * 4));
-		break;
+			WriteLatch(0x904000 + (latchLow << 8));
+			break;
 		case 0xd0:
-			WriteLatch(0xa01000 + ((latch & 0xffff) * 0x20));
-		break;
+			WriteLatch(0xa01000 + (latchLow << 5));
+			break;
 		case 0xdc:
-			WriteLatch(0xa00800 + ((latch & 0xffff) * 0x40));
-		break;
+			WriteLatch(0xa00800 + (latchLow << 6));
+			break;
 		case 0xe0:
-			WriteLatch(0xa00000 + ((latch & 0x1f) * 0x40));
-		break;
+			WriteLatch(0xa00000 + ((latchLow & 0x1f) << 6));
+			break;
 		case 0xcb: // Background layer 'x' select (pgm3in1, same as kov)
 			WriteLatch(0x880000);
-		break;
+			break;
 		case 0xcc: // Background layer offset (pgm3in1, same as kov)
-		{
-			u16 y = latch;
-			if (y & 0x400) y = -(0x400 - (y & 0x3ff));
-			WriteLatch(0x900000 + ((gSlot[0xcb] + (y * 0x40)) * 4));
-		}
-		break;
+			if (latchLow & 0x400) latchLow = -(0x400 - (latchLow & 0x3ff));
+			WriteLatch(0x900000 | (latchLow << 8));
+			break;
 		case 0x33:
 		case 0x34:
 		case 0x35:
