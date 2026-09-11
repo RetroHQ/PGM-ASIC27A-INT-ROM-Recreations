@@ -16,9 +16,10 @@ LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIP
 
 ################################################################################
 
-all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c
+all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c
 
 ################################################################################
+# Puzzli2
 
 PZLI2SRC = startup.s main.c puzzli2.c
 PZLI2OBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(PZLI2SRC))))
@@ -28,6 +29,17 @@ $(OUTDIR)/type1_puzzli2.elf: $(PZLI2OBJ) $(LINKSCRIPT) | $(OUTDIR)
 	$(LN) $(LFLAGS) $(PZLI2OBJ) -o $@
 
 ################################################################################
+# Puzzli2 Super
+
+PZLI2SSRC = startup.s main.c puzzli2s.c
+PZLI2SOBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(PZLI2SSRC))))
+PZLI2SDEP = $(PZLI2SOBJ:%.o=%.d)
+
+$(OUTDIR)/type1_puzzli2s.elf: $(PZLI2SOBJ) $(LINKSCRIPT) | $(OUTDIR)
+	$(LN) $(LFLAGS) $(PZLI2SOBJ) -o $@
+
+################################################################################
+# Photo Y2K2
 
 PY2K2SRC = startup.s main.c py2k2.c
 PY2K2OBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(PY2K2SRC))))
@@ -37,6 +49,7 @@ $(OUTDIR)/type1_py2k2.elf: $(PY2K2OBJ) $(LINKSCRIPT) | $(OUTDIR)
 	$(LN) $(LFLAGS) $(PY2K2OBJ) -o $@
 
 ################################################################################
+# Cave games (ddp3, ket and espgal)
 
 CAVESRC = startup.s main.c cave.c
 CAVEOBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(CAVESRC))))
@@ -48,6 +61,7 @@ $(OUTDIR)/type1_cave.elf: $(CAVEOBJ) $(LINKSCRIPT) | $(OUTDIR)
 ################################################################################
 
 -include $(PZLI2DEP)
+-include $(PZLI2SDEP)
 -include $(PY2K2DEP)
 -include $(CAVEDEP)
 

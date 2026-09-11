@@ -283,6 +283,7 @@ u32 puzzli2_take_leveldata_value(u8 datvalue)
 
 void CommandHandler(u32 latch)
 {
+	u16 latchLow = latch & 0xffff;
 	switch ((latch >> 16) & 0xff)
 	{
 		case 0x31:
@@ -293,16 +294,16 @@ void CommandHandler(u32 latch)
 
 				if (hackcount2==0)
 				{
-					puzzli2_take_leveldata_value(latch & 0xff);
+					puzzli2_take_leveldata_value(latchLow & 0xff);
 
-					hack_31_table_offset = latch & 0xff;
+					hack_31_table_offset = latchLow & 0xff;
 					hack_31_table_offset2 = 0;
 					hackcount2++;
 					WriteLatch(0x00d20000);
 				}
 				else  // how do we decide end?
 				{
-					int end = puzzli2_take_leveldata_value(latch & 0xff);
+					int end = puzzli2_take_leveldata_value(latchLow & 0xff);
 
 					if (!end)
 					{
@@ -387,8 +388,8 @@ void CommandHandler(u32 latch)
 
 
 		case 0x38: // Reset
-			WriteLatch(0x780000 | (REGIONSHARE << 8)); // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
 			gValueKey = 0x100;
+			WriteLatch(0x780000 | (REGIONSHARE << 8)); // this must also return the cart region or the game will act in odd ways when inserting a coin on continue, or during the game on later levels
 			m_puzzli_54_trigger = 0;
 
 		break;
@@ -410,7 +411,7 @@ void CommandHandler(u32 latch)
 		case 0x52:
 			// it writes a value of 0x0000 then expects to read back like
 			// this for the lower part of the game backgrounds
-			if ((latch & 0xffff) == 0x0000)
+			if (latchLow == 0x0000)
 			{
 				int val = ((hack_47_value & 0x0f00) >> 8) * 0x19;
 				WriteLatch(0x00740000 | (val & 0xffff));
@@ -419,7 +420,7 @@ void CommandHandler(u32 latch)
 			{
 				int val = ((hack_47_value & 0x0f00) >> 8) * 0x19;
 				val +=((hack_47_value & 0x000f) >> 0) * 0x05;
-				val += latch & 0x000f;
+				val += latchLow & 0x000f;
 				WriteLatch(0x00740000 | (val & 0xffff));
 
 			}
@@ -465,23 +466,23 @@ void CommandHandler(u32 latch)
 
 		case 0x63: // used as a read address by the 68k code (related to previous uploaded values like cave?) should point at a table of ~0x80 in size? seems to use values as further pointers?
 			#ifndef SUPER
-				if ((latch & 0xffff) == 0x0000)
+				if (latchLow == 0x0000)
 				{
 					WriteLatch(0x001694a8);
 				}
-				else if ((latch & 0xffff) == 0x0001)
+				else if (latchLow == 0x0001)
 				{
 					WriteLatch(0x0016cfae);
 				}
-				else if ((latch & 0xffff) == 0x0002)
+				else if (latchLow == 0x0002)
 				{
 					WriteLatch(0x0016ebf2); // right for puzzli2 , wrong for puzzli2s, probably calculated from the writes then?
 				}
-				else if ((latch & 0xffff) == 0x0003) // before 'cast' screen
+				else if (latchLow == 0x0003) // before 'cast' screen
 				{
 					WriteLatch(0x0016faa8);
 				}
-				else if ((latch & 0xffff) == 0x0004) // 2 player demo
+				else if (latchLow == 0x0004) // 2 player demo
 				{
 					WriteLatch(0x00174416);
 				}
@@ -491,23 +492,23 @@ void CommandHandler(u32 latch)
 
 				}
 			#else // puzzli2 super
-				if ((latch & 0xffff) == 0x0000)
+				if (latchLow == 0x0000)
 				{
 					WriteLatch(0x19027a);
 				}
-				else if ((latch & 0xffff) == 0x0001)
+				else if (latchLow == 0x0001)
 				{
 					WriteLatch(0x193D80);
 				}
-				else if ((latch & 0xffff) == 0x0002)
+				else if (latchLow == 0x0002)
 				{
 					WriteLatch(0x1959c4);
 				}
-				else if ((latch & 0xffff) == 0x0003)
+				else if (latchLow == 0x0003)
 				{
 					WriteLatch(0x19687a);
 				}
-				else if ((latch & 0xffff) == 0x0004)
+				else if (latchLow == 0x0004)
 				{
 					WriteLatch(0x19b1e8);
 				}
@@ -520,11 +521,11 @@ void CommandHandler(u32 latch)
 
 		case 0x67: // used as a read address by the 68k code (related to previous uploaded values like cave?) directly reads ~0xDBE from the address..
 			#ifndef SUPER
-				if ( ((latch & 0xffff) == 0x0000) || ((latch & 0xffff) == 0x0001) || ((latch & 0xffff) == 0x0002) || ((latch & 0xffff) == 0x0003) )
+				if ( (latchLow == 0x0000) || (latchLow == 0x0001) || (latchLow == 0x0002) || (latchLow == 0x0003) )
 				{
 					WriteLatch(0x00166178); // right for puzzli2 , wrong for puzzli2s, probably calculated from the writes then?
 				}
-				else if ( (latch & 0xffff) == 0x0004 ) // 2 player demo
+				else if ( latchLow == 0x0004 ) // 2 player demo
 				{
 					WriteLatch(0x00166e72);
 				}
@@ -533,11 +534,11 @@ void CommandHandler(u32 latch)
 					WriteLatch(0x00400000); // wrong
 				}
 			#else // puzzli2 super
-				if (((latch & 0xffff) == 0x0000) || ((latch & 0xffff) == 0x0001) || ((latch & 0xffff) == 0x0002) ||  ((latch & 0xffff) == 0x0003))
+				if ((latchLow == 0x0000) || (latchLow == 0x0001) || (latchLow == 0x0002) ||  (latchLow == 0x0003))
 				{
 					WriteLatch(0x18cf4a);
 				}
-				else if ( (latch & 0xffff) == 0x0004 ) // 2 player demo
+				else if ( latchLow == 0x0004 ) // 2 player demo
 				{
 					WriteLatch(0x0018dc44);
 				}
