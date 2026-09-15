@@ -16,7 +16,17 @@ LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIP
 
 ################################################################################
 
-all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c $(OUTDIR)/type3_demonfront.c $(OUTDIR)/type1_oldsplus.c $(OUTDIR)/type1_kovplus.c
+all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c $(OUTDIR)/type3_demonfront.c $(OUTDIR)/type1_oldsplus.c $(OUTDIR)/type1_kovplus.c $(OUTDIR)/type1_puzlstar.c
+
+################################################################################
+# Puzzle Star
+
+PUZLSSRC = startup.s main.c puzlstar.c
+PUZLSOBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(PUZLSSRC))))
+PUZLSDEP = $(PUZLSOBJ:%.o=%.d)
+
+$(OUTDIR)/type1_puzlstar.elf: $(PUZLSOBJ) $(LINKSCRIPT) | $(OUTDIR)
+	$(LN) $(LFLAGS) $(PUZLSOBJ) -o $@
 
 ################################################################################
 # Knights of Valour Plus
@@ -90,6 +100,7 @@ $(OUTDIR)/type1_cave.elf: $(CAVEOBJ) $(LINKSCRIPT) | $(OUTDIR)
 
 ################################################################################
 
+-include $(PUZLSDEP)
 -include $(KOVPLDEP)
 -include $(OLDSPDEP)
 -include $(DMNFRDEP)
