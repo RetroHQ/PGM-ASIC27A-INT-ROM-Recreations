@@ -16,7 +16,27 @@ LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIP
 
 ################################################################################
 
-all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c
+all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c $(OUTDIR)/type3_demonfront.c $(OUTDIR)/type1_oldsplus.c
+
+################################################################################
+# Oriental Legend Super
+
+OLDSPSRC = startup.s main.c oldsplus.c
+OLDSPOBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(OLDSPSRC))))
+OLDSPDEP = $(OLDSPOBJ:%.o=%.d)
+
+$(OUTDIR)/type1_oldsplus.elf: $(OLDSPOBJ) $(LINKSCRIPT) | $(OUTDIR)
+	$(LN) $(LFLAGS) $(OLDSPOBJ) -o $@
+
+################################################################################
+# Demon Front
+
+DMNFRSRC = startup_demonfront.s
+DMNFROBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(DMNFRSRC))))
+DMNFRDEP = $(DMNFROBJ:%.o=%.d)
+
+$(OUTDIR)/type3_demonfront.elf: $(DMNFROBJ) $(LINKSCRIPT) | $(OUTDIR)
+	$(LN) $(LFLAGS) $(DMNFROBJ) -o $@
 
 ################################################################################
 # Puzzli2
@@ -60,6 +80,8 @@ $(OUTDIR)/type1_cave.elf: $(CAVEOBJ) $(LINKSCRIPT) | $(OUTDIR)
 
 ################################################################################
 
+-include $(OLDSPDEP)
+-include $(DMNFRDEP)
 -include $(PZLI2DEP)
 -include $(PZLI2SDEP)
 -include $(PY2K2DEP)
