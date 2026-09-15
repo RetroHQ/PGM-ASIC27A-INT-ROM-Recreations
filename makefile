@@ -16,7 +16,17 @@ LFLAGS = -march=armv4t -mcpu=arm7tdmi -nostdlib -nostartfiles -Wl,-T,$(LINKSCRIP
 
 ################################################################################
 
-all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c $(OUTDIR)/type3_demonfront.c $(OUTDIR)/type1_oldsplus.c
+all: makefile $(OUTDIR)/type1_py2k2.c $(OUTDIR)/type1_cave.c $(OUTDIR)/type1_puzzli2.c $(OUTDIR)/type1_puzzli2s.c $(OUTDIR)/type3_demonfront.c $(OUTDIR)/type1_oldsplus.c $(OUTDIR)/type1_kovplus.c
+
+################################################################################
+# Knights of Valour Plus
+
+KOVPLSRC = startup.s main.c kovplus.c
+KOVPLOBJ = $(patsubst %.s,$(OBJDIR)/%.o, $(patsubst %.c,$(OBJDIR)/%.o,$(notdir $(KOVPLSRC))))
+KOVPLDEP = $(KOVPLOBJ:%.o=%.d)
+
+$(OUTDIR)/type1_kovplus.elf: $(KOVPLOBJ) $(LINKSCRIPT) | $(OUTDIR)
+	$(LN) $(LFLAGS) $(KOVPLOBJ) -o $@
 
 ################################################################################
 # Oriental Legend Super
@@ -80,6 +90,7 @@ $(OUTDIR)/type1_cave.elf: $(CAVEOBJ) $(LINKSCRIPT) | $(OUTDIR)
 
 ################################################################################
 
+-include $(KOVPLDEP)
 -include $(OLDSPDEP)
 -include $(DMNFRDEP)
 -include $(PZLI2DEP)
